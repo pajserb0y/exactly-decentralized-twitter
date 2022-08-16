@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
+error Exactly__NotOwner();
+
 contract Exactly is ERC721URIStorage {
     uint256 private s_tokenCount;
     uint256 private s_postCount;
@@ -38,7 +40,13 @@ contract Exactly is ERC721URIStorage {
         s_tokenCount++;
         _safeMint(msg.sender, s_tokenCount);
         _setTokenURI(s_tokenCount, _tokenURI);
+        setProfile(s_tokenCount);
         return s_tokenCount;
+    }
+
+    function setProfile(uint256 _tokenId) public {
+        if (msg.sender != ownerOf(_tokenId)) revert Exactly__NotOwner();
+        s_profileToTokenId[msg.sender] = _tokenId;
     }
 
     function getTokenCount() public view returns (uint256) {
@@ -51,5 +59,9 @@ contract Exactly is ERC721URIStorage {
 
     function getPost(uint256 postCount) public view returns (Post memory) {
         return s_postCountToPost[postCount];
+    }
+
+    function getTokenIdForProfile(address profile) public view returns (uint256) {
+        return s_profileToTokenId[profile];
     }
 }
