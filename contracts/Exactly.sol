@@ -84,6 +84,24 @@ contract Exactly is ERC721URIStorage {
         emit Exactly__PostTipped(_postId, _post.hashContent, _post.tipAmount, _post.author);
     }
 
+    function getAllPosts() external view returns (Post[] memory _posts) {
+        _posts = new Post[](s_postCount);
+        for (uint256 i = 0; i < s_postCount; i++) {
+            _posts[i] = s_postCountToPost[i + 1];
+        }
+    }
+
+    function getMyNfts() external view returns (uint256[] memory _tokenIds) {
+        _tokenIds = new uint256[](balanceOf(msg.sender));
+        uint256 _currIndex = 0;
+        for (uint256 i = 1; i < s_tokenCount; i++) {
+            if (ownerOf(i) == msg.sender) {
+                _tokenIds[_currIndex] = i;
+                _currIndex++;
+            }
+        }
+    }
+
     function getTokenCount() public view returns (uint256) {
         return s_tokenCount;
     }
