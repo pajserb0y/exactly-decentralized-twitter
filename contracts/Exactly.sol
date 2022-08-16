@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 error Exactly__NotOwner();
+error Exactly__MustOwnNftToPost();
+error Exactly__PostCanNotBeEmpty();
 
 contract Exactly is ERC721URIStorage {
     uint256 private s_tokenCount;
@@ -47,6 +49,18 @@ contract Exactly is ERC721URIStorage {
     function setProfile(uint256 _tokenId) public {
         if (msg.sender != ownerOf(_tokenId)) revert Exactly__NotOwner();
         s_profileToTokenId[msg.sender] = _tokenId;
+    }
+
+    function uploadPost(string memory _postHash) external {
+        if (balanceOf(msg.sender) <= 0) revert Exactly__MustOwnNftToPost();
+
+        if (bytes(_postHash).length <= 0) revert Exactly__PostCanNotBeEmpty();
+
+        s_postCount++;
+
+        s_postCountToPost[s_postCount] = Post(s_postCount, _postHash, 0, payable(msg.sender));
+
+        emit Exactly__PostCreated(s_postCount, _postHash, 0, payable(msg.sender));
     }
 
     function getTokenCount() public view returns (uint256) {
