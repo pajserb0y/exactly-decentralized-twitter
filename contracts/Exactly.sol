@@ -6,6 +6,9 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 error Exactly__NotOwner();
 error Exactly__MustOwnNftToPost();
 error Exactly__PostCanNotBeEmpty();
+error Exactly__PostWithThatIdDoesntExist();
+error Exactly__CanNotTipToYouself();
+error Exactly__TipAmountIsNotEnough();
 
 contract Exactly is ERC721URIStorage {
     uint256 private s_tokenCount;
@@ -63,6 +66,24 @@ contract Exactly is ERC721URIStorage {
         emit Exactly__PostCreated(s_postCount, _postHash, 0, payable(msg.sender));
     }
 
+    function tipPost(uint256 _postId) external payable {
+        if (_postId < 0 || _postId > s_postCount) revert Exactly__PostWithThatIdDoesntExist();
+
+        if (msg.value <= 0) revert Exactly__TipAmountIsNotEnough();
+
+        Post memory _post = s_postCountToPost[_postId];
+
+        if (msg.sender == _post.author) revert Exactly__CanNotTipToYouself();
+
+        _post.tipAmount = _post.tipAmount + msg.value;
+
+        s_postCountToPost[_postId] = _post;
+
+        _post.author.transfer(msg.value);
+
+        emit Exactly__PostTipped(_postId, _post.hashContent, _post.tipAmount, _post.author);
+    }
+
     function getTokenCount() public view returns (uint256) {
         return s_tokenCount;
     }
@@ -76,6 +97,6 @@ contract Exactly is ERC721URIStorage {
     }
 
     function getTokenIdForProfile(address profile) public view returns (uint256) {
-        return s_profileToTokenId[profile];
+        return s_profileToTokenId[profile]; //returns nftId for user
     }
 }
