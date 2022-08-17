@@ -85,11 +85,16 @@ const { developmentChains } = require("../helper-hardhat-config")
               it("Should allow users to tip posts if postId exists and value is grater then zero and tipper is not author of post", async function () {
                   await exactly.mint(URI)
                   await exactly.uploadPost(postHash)
+                  const initAuthorBalance = await ethers.provider.getBalance(deployer.address)
+
                   expect(await exactly.connect(user).tipPost(1, { value: tipFee })).to.emit(
                       "Transfer"
                   )
                   expect((await exactly.getPost(1)).tipAmount.toString()).to.equal(
                       ethers.utils.parseEther("0.1").toString()
+                  )
+                  expect(await ethers.provider.getBalance(deployer.address)).to.equal(
+                      initAuthorBalance.add(tipFee)
                   )
               })
               it("Should not allow users to tip posts if postId doesn't exists", async function () {
@@ -106,6 +111,14 @@ const { developmentChains } = require("../helper-hardhat-config")
 
                   await expect(exactly.connect(user).tipPost(1, { value: 0 })).to.be.revertedWith(
                       "Exactly__TipAmountIsNotEnough"
+                  )
+              })
+              it("Should not allow users to tip posts if they are the author", async function () {
+                  await exactly.mint(URI)
+                  await exactly.uploadPost(postHash)
+
+                  await expect(exactly.tipPost(1, { value: tipFee })).to.be.revertedWith(
+                      "Exactly__CanNotTipToYouself"
                   )
               })
               it("Should emit event success when users tip posts if postId exists and value is grater then zero and tipper is not author of post", async function () {
