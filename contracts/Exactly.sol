@@ -75,11 +75,11 @@ contract Exactly is ERC721URIStorage {
 
         if (msg.sender == _post.author) revert Exactly__CanNotTipToYouself();
 
+        _post.author.transfer(msg.value); //not best practise to change state variables after external function but transfer is considered safe from re-entrancy because it always forwards 2300 gas
+
         _post.tipAmount = _post.tipAmount + msg.value;
 
         s_postCountToPost[_postId] = _post;
-
-        _post.author.transfer(msg.value);
 
         emit Exactly__PostTipped(_postId, _post.hashContent, _post.tipAmount, _post.author);
     }
@@ -94,7 +94,7 @@ contract Exactly is ERC721URIStorage {
     function getMyNfts() external view returns (uint256[] memory _tokenIds) {
         _tokenIds = new uint256[](balanceOf(msg.sender));
         uint256 _currIndex = 0;
-        for (uint256 i = 1; i < s_tokenCount; i++) {
+        for (uint256 i = 1; i <= s_tokenCount; i++) {
             if (ownerOf(i) == msg.sender) {
                 _tokenIds[_currIndex] = i;
                 _currIndex++;
