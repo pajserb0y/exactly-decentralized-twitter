@@ -2,8 +2,8 @@ const { ethers, network } = require("hardhat")
 const fs = require("fs")
 
 const FRONT_END_ADDRESSES_FILE =
-    "../exactly-decentralized-twitter-frontend/contractData/contractAddresses.json"
-const FRONT_END_ABI_FILE = "../exactly-decentralized-twitter-frontend/contractData/abi.json"
+    "../exactly-decentralized-twitter-frontend/src/contractData/contractAddresses.json"
+const FRONT_END_ABI_FILE = "../exactly-decentralized-twitter-frontend/src/contractData/abi.json"
 
 module.exports = async function () {
     if (process.env.UPDATE_FRONT_END) {

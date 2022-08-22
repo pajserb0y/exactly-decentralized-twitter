@@ -107,7 +107,7 @@ contract Exactly is ERC721URIStorage {
     }
 
     function getPostCount() public view returns (uint256) {
-        return s_tokenCount;
+        return s_postCount;
     }
 
     function getPost(uint256 postCount) public view returns (Post memory) {
